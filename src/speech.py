@@ -15,12 +15,12 @@ def calibrate_microphone():
 
 def listen():
     with sr.Microphone() as source:
+        print("\n== * == * == * ==\n")
         print("Listening...")
         try:
             audio = recognizer.listen(
                 source,
-                timeout=LISTEN_TIMEOUT,
-                phrase_time_limit=PHRASE_TIME_LIMIT
+                timeout=LISTEN_TIMEOUT
             )
         except sr.WaitTimeoutError:
             return ""

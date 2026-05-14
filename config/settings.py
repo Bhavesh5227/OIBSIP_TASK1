@@ -1,7 +1,9 @@
+import os
+
 # Speech Recognition settings
 ENERGY_THRESHOLD = 3000       # minimum audio energy to consider as speech
 PAUSE_THRESHOLD = 0.8         # seconds of silence to mark end of phrase
-LISTEN_TIMEOUT = 5            # seconds to wait for speech before giving up
+LISTEN_TIMEOUT = 6            # seconds to wait for speech before giving up
 PHRASE_TIME_LIMIT = 5         # max seconds for a single phrase
 
 # TTS settings
@@ -13,3 +15,11 @@ INTERRUPT_WORDS = ["stop", "quiet", "enough", "shut up"]
 # Weather API
 WEATHER_API_KEY = "cbc823df887982f8cb963df68a91cc11"
 WEATHER_UNITS = "metric"                # metric = Celsius
+
+# AI API
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Email settings
+EMAIL_ADDRESS  = "bhavesh.kp.wm@gmail.com"
+EMAIL_PASSWORD = "rcwj somp zmen dtia"  # Gmail App Password, not real password

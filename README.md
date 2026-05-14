@@ -11,6 +11,7 @@ searches Google, and reads Wikipedia summaries out loud with interruptible speec
 - 🔍 Search Google by voice
 - 📖 Read Wikipedia summaries (say "stop" to interrupt)
 - 🔇 Offline text-to-speech via pyttsx3
+- 🤖 Asks ai if command is not found
 
 ## Project Structure
     src/          → core modules (speech, tts, commands, assistant)
@@ -37,6 +38,9 @@ searches Google, and reads Wikipedia summaries out loud with interruptible speec
 | "today's date"        | Reads current date              |
 | "search <query>"      | Opens Google search             |
 | "wikipedia <topic>"   | Reads Wikipedia summary         |
+| "weather"             | Collects the weather data       |
+| "reminder"            | Sets reminders in minutes       |
+| "list remainders"     | Lists the existing remainders   |
 | "stop"                | Interrupts Wikipedia reading    |
 | "exit" / "quit"       | Closes the assistant            |
 

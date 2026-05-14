@@ -1,10 +1,12 @@
 import datetime
 import webbrowser
-import wikipedia
+import re
 from src.tts import speak, speak_interruptible
 from src.weather import get_weather
 from src.wiki import get_wiki
-import re
+from src.ai_brain import ask_groq, clear_memory, get_history_length
+from src.email_handler import send_email, parse_email_command
+from src.remainders import set_reminder, list_reminders, parse_reminder_command
 
 INTENTS = {
     "greeting":  ["hello", "hi", "hey"],
@@ -13,21 +15,23 @@ INTENTS = {
     "search":    ["search"],
     "weather":   ["weather", "temperature", "forecast"],
     "wiki":      ["wikipedia", "who is", "what is", "tell me about"],
+    "email":     ["send email", "send a mail", "email to"],
+    "reminder":  ["remind me", "set reminder", "set a reminder"],
+    "reminders": ["list reminders", "my reminders", "show reminders", "list reminder", "my reminder", "show reminder"],
+    "memory":    ["clear memory", "forget everything", "reset chat"],
     "exit":      ["exit", "quit", "bye", "goodbye"],
 }
 
 def match_intent(command):
-    """Match keywords as whole words only, preventing substring false matches."""
     for intent, keywords in INTENTS.items():
         for kw in keywords:
-            # \b = word boundary — "hi" won't match inside "hitler"
             if re.search(rf'\b{re.escape(kw)}\b', command):
                 return intent
-    return "unknown"
+    return "groq"   # default — send to Claude instead of "unknown"
 
 def handle_command(command):
     intent = match_intent(command)
-    print(f"DEBUG intent: {intent}")        # ← add this
+    print(f"DEBUG intent: {intent}")
 
     if intent == "greeting":
         speak("Hello! How can I assist you today?")
@@ -53,10 +57,8 @@ def handle_command(command):
                    "temperature", "forecast for", "forecast"]:
             city = city.replace(kw, "")
         city = city.strip()
-        print(f"DEBUG city extracted: '{city}'")     # ← add this
         if city:
             result = get_weather(city)
-            print(f"DEBUG weather result: {result}") # ← add this
             speak(result)
         else:
             speak("Which city's weather would you like?")
@@ -66,13 +68,37 @@ def handle_command(command):
         for kw in ["wikipedia", "who is", "what is", "tell me about"]:
             topic = topic.replace(kw, "")
         topic = topic.strip()
-        print(f"DEBUG topic extracted: '{topic}'")   # ← add this
         if topic:
             result = get_wiki(topic)
-            print(f"DEBUG wiki result: {result}")    # ← add this
             speak_interruptible(result)
         else:
             speak("What topic would you like to know about?")
+
+    elif intent == "email":
+        parsed = parse_email_command(command)
+        if parsed:
+            to, subject, body = parsed
+            speak(f"Sending email to {to} about {subject}. Please wait.")
+            result = send_email(to, subject, body)
+            speak(result)
+        else:
+            speak("Please say: send email to address, about subject, saying body.")
+
+    elif intent == "reminder":
+        parsed = parse_reminder_command(command)
+        if parsed:
+            task, minutes = parsed
+            result = set_reminder(task, minutes)
+            speak(result)
+        else:
+            speak("Please say: remind me to task in X minutes.")
+
+    elif intent == "reminders":
+        speak(list_reminders())
+
+    elif intent == "memory":
+        clear_memory()
+        speak("I have cleared our conversation history.")
 
     elif intent == "exit":
         speak("Goodbye!")
@@ -81,4 +107,8 @@ def handle_command(command):
         exit()
 
     else:
-        speak("Sorry, I didn't understand that command.")
+        exchanges = get_history_length()
+        if exchanges > 0:
+            print(f"Sending to AI Brain! (memory: {exchanges} exchanges)")
+        result = ask_groq(command)
+        speak(result)

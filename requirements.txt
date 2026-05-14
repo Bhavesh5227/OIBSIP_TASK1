@@ -3,3 +3,5 @@ pyaudio
 pyttsx3
 wikipedia
 requests
+google-generativeai
+schedule
